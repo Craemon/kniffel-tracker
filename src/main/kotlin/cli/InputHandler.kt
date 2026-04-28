@@ -8,12 +8,16 @@ class InputHandler(private val playerService: PlayerService) {
         while (true) {
             println("\n1. Create player")
             println("2. List players")
-            println("3. Exit")
+            println("3. Find player")
+            println("4. Delete player")
+            println("5. Exit")
 
             when (readln()) {
                 "1" -> createPlayer()
                 "2" -> listPlayers()
-                "3" -> return
+                "3" -> getPlayer()
+                "4" -> deletePlayer()
+                "5" -> return
                 else -> println("Invalid input")
             }
         }
@@ -26,6 +30,30 @@ class InputHandler(private val playerService: PlayerService) {
         try {
             val player = playerService.createPlayer(name)
             println("Created player with id: ${player.id}")
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+        }
+    }
+
+    private fun getPlayer() {
+        println("Enter player id: ")
+        val id = readln().toInt()
+
+        try {
+            val player = playerService.getPlayer(id)
+            println("Found player with id: ${player.id} and name: ${player.name}")
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+        }
+    }
+
+    private fun deletePlayer() {
+        println("Enter player id: ")
+        val id = readln().toInt()
+
+        try {
+            playerService.deletePlayer(id)
+            println("Deleted player with id: $id")
         } catch (e: Exception) {
             println("Error: ${e.message}")
         }

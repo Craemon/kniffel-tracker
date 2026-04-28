@@ -9,6 +9,15 @@ class PlayerService(private val playerDao: PlayerDao) {
         return playerDao.create(name)
     }
 
+    fun deletePlayer(id: Int) {
+        playerDao.delete(id)
+        return
+    }
+
+    fun getPlayer(id: Int): Player {
+        return playerDao.get(id)
+    }
+
     fun getAllPlayers(): List<Player> {
         return playerDao.getAll()
     }

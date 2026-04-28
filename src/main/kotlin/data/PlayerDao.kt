@@ -22,6 +22,20 @@ class PlayerDao(private val db: Database) {
         return Player(id, name)
     }
 
+    fun delete(id: Int) {
+        val conn = db.connect()
+        val stmt = conn.createStatement()
+        stmt.executeUpdate("DELETE FROM players WHERE id = $id")
+    }
+
+    fun get(id: Int): Player {
+        val conn = db.connect()
+        val stmt = conn.createStatement()
+        val rs = stmt.executeQuery("SELECT * FROM players WHERE id = $id")
+
+        return Player(rs.getInt(1), rs.getString(2))
+    }
+
     fun getAll(): List<Player> {
         val conn = db.connect()
         val stmt = conn.createStatement()
