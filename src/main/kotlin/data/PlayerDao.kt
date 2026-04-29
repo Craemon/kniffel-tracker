@@ -2,24 +2,28 @@ package data
 
 import Database
 import models.Player
+import java.sql.SQLException
 import java.sql.Statement
 
 class PlayerDao(private val db: Database) {
     fun create(name: String): Player {
-        val conn = db.connect()
-
-        val stmt = conn.prepareStatement(
-            "INSERT INTO players (name) VALUES (?)",
-            Statement.RETURN_GENERATED_KEYS
-        )
-
-        stmt.setString(1, name)
-        stmt.executeUpdate()
-
-        val rs = stmt.generatedKeys
-        val id = if (rs.next()) rs.getInt(1) else null
-
-        return Player(id, name)
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "INSERT INTO players (name) VALUES (?)",
+                Statement.RETURN_GENERATED_KEYS
+            ).use { stmt ->
+                stmt.setString(1, name)
+                stmt.executeUpdate()
+                stmt.generatedKeys.use { rs ->
+                    val id = if (rs.next()) {
+                        rs.getInt(1)
+                    } else {
+                        throw SQLException("Couldn't generate new player")
+                    }
+                    return Player(id, name)
+                }
+            }
+        }
     }
 
     fun delete(id: Int) {
