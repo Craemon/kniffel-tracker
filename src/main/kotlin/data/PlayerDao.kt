@@ -27,41 +27,50 @@ class PlayerDao(private val db: Database) {
     }
 
     fun delete(id: Int) {
-        val conn = db.connect()
-
-        val stmt = conn.prepareStatement(
-            "DELETE FROM players WHERE id = ?",
-        )
-        stmt.setInt(1, id)
-        stmt.executeUpdate()
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "DELETE FROM players WHERE id = ?"
+            ).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeUpdate()
+            }
+        }
     }
 
     fun get(id: Int): Player {
-        val conn = db.connect()
-        val stmt = conn.prepareStatement(
-            "SELECT * FROM players WHERE id = ?",
-        )
-        stmt.setInt(1, id)
-        val rs = stmt.executeQuery()
-
-        return Player(rs.getInt(1), rs.getString(2))
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "SELECT * FROM players WHERE id = ?"
+            ).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) {
+                        return Player(rs.getInt("id"), rs.getString("name"))
+                    } else {
+                        throw NoSuchElementException("Player with id $id not found")
+                    }
+                }
+            }
+        }
     }
 
     fun getAll(): List<Player> {
-        val conn = db.connect()
-        val stmt = conn.createStatement()
-        val rs = stmt.executeQuery("SELECT * FROM players")
+        db.connect().use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.executeQuery("SELECT * FROM players").use { rs ->
+                    val players = mutableListOf<Player>()
 
-        val players = mutableListOf<Player>()
-
-        while (rs.next()) {
-            players.add(
-                Player(
-                    id = rs.getInt("id"),
-                    name = rs.getString("name")
-                )
-            )
+                    while (rs.next()) {
+                        players.add(
+                            Player(
+                                id = rs.getInt("id"),
+                                name = rs.getString("name")
+                            )
+                        )
+                    }
+                    return players
+                }
+            }
         }
-        return players
     }
 }
