@@ -26,13 +26,13 @@ class PlayerDao(private val db: Database) {
         }
     }
 
-    fun delete(id: Int) {
+    fun delete(id: Int): Boolean {
         db.connect().use { conn ->
             conn.prepareStatement(
                 "DELETE FROM players WHERE id = ?"
             ).use { stmt ->
                 stmt.setInt(1, id)
-                stmt.executeUpdate()
+                return stmt.executeUpdate() > 0
             }
         }
     }
