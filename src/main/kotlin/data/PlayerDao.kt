@@ -26,6 +26,22 @@ class PlayerDao(private val db: Database) {
         }
     }
 
+    fun update(id: Int, newName: String): Player {
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "UPDATE players SET name = ? WHERE id = ?",
+            ).use { stmt ->
+                stmt.setString(1, newName)
+                stmt.setInt(2, id)
+                val rowsAffected = stmt.executeUpdate()
+                if (rowsAffected == 0) {
+                    throw NoSuchElementException("Player with id $id not found")
+                }
+                return get(id)
+            }
+        }
+    }
+
     fun delete(id: Int): Boolean {
         db.connect().use { conn ->
             conn.prepareStatement(

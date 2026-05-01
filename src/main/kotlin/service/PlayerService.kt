@@ -6,8 +6,14 @@ import models.Player
 class PlayerService(private val playerDao: PlayerDao) {
     fun createPlayer(name: String): Player {
         require(name.isNotEmpty()) { "Name cannot be empty" }
-        require(name.length <= 25) { "Name cannot be longer than 20 characters" }
+        require(name.length <= 25) { "Name cannot be longer than 25 characters" }
         return playerDao.create(name)
+    }
+
+    fun updatePlayer(id: Int, name: String): Player {
+        require(name.isNotEmpty()) { "Name cannot be empty" }
+        require(name.length <= 25) { "Name cannot be longer than 25 characters" }
+        return playerDao.update(id, name)
     }
 
     fun deletePlayer(id: Int): Boolean {
