@@ -41,6 +41,12 @@ class GameSheetDao(private val db: Database) {
         }
     }
 
+    fun get(id: Int): GameSheet {
+        db.connect().use { conn ->
+            return fetchGameSheetById(conn, id)
+        }
+    }
+
     private fun fetchGameSheetById(conn: java.sql.Connection, id: Int): GameSheet {
         conn.prepareStatement(
             "SELECT * FROM game_sheets WHERE id = ?"
