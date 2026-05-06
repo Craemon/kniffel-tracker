@@ -41,6 +41,17 @@ class GameSheetDao(private val db: Database) {
         }
     }
 
+    fun delete(id: Int): Boolean {
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "DELETE FROM game_sheets WHERE id =?"
+            ).use { stmt ->
+                stmt.setInt(1, id)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
     fun get(id: Int): GameSheet {
         db.connect().use { conn ->
             return fetchGameSheetById(conn, id)
