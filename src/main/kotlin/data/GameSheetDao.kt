@@ -9,7 +9,7 @@ class GameSheetDao(private val db: Database) {
     fun create(gameSheet: GameSheet): GameSheet {
         db.connect().use { conn ->
             conn.prepareStatement(
-                "INSERT INTO game_sheets (game_id, player_id, ones, twos, threes, fours, fives, sixes, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, kniffel, chance, kniffel_bonus) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO game_sheets (game_id, player_id, ones, twos, threes, fours, fives, sixes, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, kniffel, chance, kniffel_bonus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
             ).use { stmt ->
                 stmt.setInt(1, gameSheet.gameId)
@@ -31,7 +31,7 @@ class GameSheetDao(private val db: Database) {
                 stmt.executeUpdate()
                 stmt.generatedKeys.use { rs ->
                     val id = if (rs.next()) {
-                        rs.getInt("id")
+                        rs.getInt(1)
                     } else {
                         throw SQLException("Could not create new GameSheet!")
                     }
@@ -55,6 +55,43 @@ class GameSheetDao(private val db: Database) {
     fun get(id: Int): GameSheet {
         db.connect().use { conn ->
             return fetchGameSheetById(conn, id)
+        }
+    }
+
+    fun getByGameId(gameId: Int): List<GameSheet> {
+        db.connect().use { conn ->
+            conn.prepareStatement(
+                "SELECT * FROM game_sheets WHERE game_id = ? ORDER BY player_id"
+            ).use { stmt ->
+                stmt.setInt(1, gameId)
+                stmt.executeQuery().use { rs ->
+                    val sheets = mutableListOf<GameSheet>()
+                    while (rs.next()) {
+                        sheets.add(
+                            GameSheet(
+                                id = rs.getInt("id"),
+                                gameId = rs.getInt("game_id"),
+                                playerId = rs.getInt("player_id"),
+                                ones = rs.getInt("ones"),
+                                twos = rs.getInt("twos"),
+                                threes = rs.getInt("threes"),
+                                fours = rs.getInt("fours"),
+                                fives = rs.getInt("fives"),
+                                sixes = rs.getInt("sixes"),
+                                threeOfAKind = rs.getInt("three_of_a_kind"),
+                                fourOfAKind = rs.getInt("four_of_a_kind"),
+                                fullHouse = rs.getInt("full_house"),
+                                smallStraight = rs.getInt("small_straight"),
+                                largeStraight = rs.getInt("large_straight"),
+                                kniffel = rs.getInt("kniffel"),
+                                chance = rs.getInt("chance"),
+                                kniffelBonus = rs.getInt("kniffel_bonus")
+                            )
+                        )
+                    }
+                    return sheets
+                }
+            }
         }
     }
 

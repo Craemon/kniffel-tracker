@@ -14,9 +14,8 @@ class GameDao(private val db: Database) {
             ).use { stmt ->
                 stmt.executeUpdate()
                 stmt.generatedKeys.use { rs ->
-
                     val id = if (rs.next()) {
-                        rs.getInt("id")
+                        rs.getInt(1)
                     } else {
                         throw SQLException("Game could not be created")
                     }
@@ -70,9 +69,9 @@ class GameDao(private val db: Database) {
             stmt.setInt(1, id)
             stmt.executeQuery().use { rs ->
                 if (rs.next()) {
-                    return Game(id,rs.getString("created_at"))
+                    return Game(id, rs.getString("created_at"))
                 } else {
-                    throw SQLException("Game with id $id not found")
+                    throw NoSuchElementException("Game with id $id not found")
                 }
             }
         }
